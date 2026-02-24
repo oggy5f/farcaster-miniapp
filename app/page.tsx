@@ -12,9 +12,9 @@ export default function Home() {
         const sdkModule: any = await import("@farcaster/miniapp-sdk");
         const sdk = sdkModule.default;
 
-        await sdk.ready();
+        await sdk.actions.ready(); // 🔥 IMPORTANT FIX
 
-        const context = await sdk.getContext(); // IMPORTANT CHANGE
+        const context = await sdk.getContext();
 
         if (context?.user?.fid) {
           setFid(context.user.fid);
@@ -38,7 +38,7 @@ export default function Home() {
           <p>Your FID: {fid}</p>
         </>
       ) : (
-        <p>Loading Mini App...</p>
+        <p>Waiting for Warpcast context...</p>
       )}
     </div>
   );
