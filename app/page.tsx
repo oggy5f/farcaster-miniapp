@@ -3,22 +3,22 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [fid, setFid] = useState<number | null>(null);
-  const [username, setUsername] = useState("");
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     async function init() {
       try {
-        const sdkModule: any = await import("@farcaster/miniapp-sdk");
-        const sdk = sdkModule.default;
+        const sdkModule = await import("@farcaster/miniapp-sdk");
+        const sdk: any = sdkModule.default;
 
-        await sdk.actions.ready(); // 🔥 IMPORTANT FIX
+        // Tell Warpcast app we're ready
+        await sdk.actions.ready();
 
-        const context = await sdk.getContext();
+        // 🔥 Correct way in new SDK
+        const context = sdk.context;
 
-        if (context?.user?.fid) {
-          setFid(context.user.fid);
-          setUsername(context.user.username);
+        if (context?.user) {
+          setUser(context.user);
         }
       } catch (err) {
         console.log("Not inside Warpcast");
@@ -32,10 +32,10 @@ export default function Home() {
     <div style={{ padding: 40, textAlign: "center" }}>
       <h1>🚀 My Real Farcaster Mini App</h1>
 
-      {fid ? (
+      {user ? (
         <>
-          <h2>Welcome @{username}</h2>
-          <p>Your FID: {fid}</p>
+          <h2>Welcome @{user.username}</h2>
+          <p>Your FID: {user.fid}</p>
         </>
       ) : (
         <p>Waiting for Warpcast context...</p>
