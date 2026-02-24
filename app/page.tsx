@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [fid, setFid] = useState<number | null>(null);
-  const [username, setUsername] = useState<string>("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
     async function init() {
@@ -14,7 +14,7 @@ export default function Home() {
 
         await sdk.ready();
 
-        const context = sdk.context;
+        const context = await sdk.getContext(); // IMPORTANT CHANGE
 
         if (context?.user?.fid) {
           setFid(context.user.fid);
@@ -38,7 +38,7 @@ export default function Home() {
           <p>Your FID: {fid}</p>
         </>
       ) : (
-        <p>Open this inside Warpcast Mini Apps</p>
+        <p>Loading Mini App...</p>
       )}
     </div>
   );
