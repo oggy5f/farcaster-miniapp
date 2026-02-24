@@ -7,10 +7,14 @@ export default function Home() {
   const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
-    async function load() {
+    async function init() {
       try {
-        const sdk = await import("@farcaster/miniapp-sdk");
-        const context = await sdk.context;
+        const sdkModule: any = await import("@farcaster/miniapp-sdk");
+        const sdk = sdkModule.default;
+
+        await sdk.ready();
+
+        const context = sdk.context;
 
         if (context?.user?.fid) {
           setFid(context.user.fid);
@@ -21,7 +25,7 @@ export default function Home() {
       }
     }
 
-    load();
+    init();
   }, []);
 
   return (
