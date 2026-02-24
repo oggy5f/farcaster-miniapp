@@ -13,20 +13,14 @@ export default function Home() {
 
         await sdk.actions.ready();
 
-        const waitForContext = (): Promise<any> =>
-          new Promise((resolve) => {
-            const interval = setInterval(() => {
-              if (sdk.context?.user) {
-                clearInterval(interval);
-                resolve(sdk.context);
-              }
-            }, 100);
-          });
-
-        const context = await waitForContext();
-        setUser(context.user);
-      } catch (e) {
-        console.log("Not in Warpcast");
+        // 🔥 Listen for context event
+        sdk.on("context", (context: any) => {
+          if (context?.user) {
+            setUser(context.user);
+          }
+        });
+      } catch (err) {
+        console.log("Not inside Warpcast");
       }
     }
 
