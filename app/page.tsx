@@ -1,41 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import sdk from "@farcaster/miniapp-sdk";
 
 export default function Home() {
   const [fid, setFid] = useState<number | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>("");
 
   useEffect(() => {
-    async function init() {
+    async function load() {
       try {
-        await sdk.actions.ready();
-
+        const sdk = await import("@farcaster/miniapp-sdk");
         const context = await sdk.context;
 
-        if (context && context.user) {
-          setFid(context.user.fid ?? null);
-          setUsername(context.user.username ?? null);
+        if (context?.user?.fid) {
+          setFid(context.user.fid);
+          setUsername(context.user.username);
         }
       } catch (err) {
         console.log("Not inside Warpcast");
       }
     }
 
-    init();
+    load();
   }, []);
 
   return (
-    <div style={{ padding: 40, fontFamily: "sans-serif" }}>
-      <h1>🚀 Farcaster Mini App</h1>
+    <div style={{ padding: 40, textAlign: "center" }}>
+      <h1>🚀 My Real Farcaster Mini App</h1>
 
       {fid ? (
-        <div>
-          <p>✅ Connected inside Warpcast</p>
-          <p><b>FID:</b> {fid}</p>
-          <p><b>Username:</b> {username}</p>
-        </div>
+        <>
+          <h2>Welcome @{username}</h2>
+          <p>Your FID: {fid}</p>
+        </>
       ) : (
         <p>Open this inside Warpcast Mini Apps</p>
       )}
