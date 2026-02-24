@@ -11,17 +11,22 @@ export default function Home() {
         const sdkModule = await import("@farcaster/miniapp-sdk");
         const sdk: any = sdkModule.default;
 
-        // Tell Warpcast app we're ready
         await sdk.actions.ready();
 
-        // 🔥 Correct way in new SDK
-        const context = sdk.context;
+        const waitForContext = (): Promise<any> =>
+          new Promise((resolve) => {
+            const interval = setInterval(() => {
+              if (sdk.context?.user) {
+                clearInterval(interval);
+                resolve(sdk.context);
+              }
+            }, 100);
+          });
 
-        if (context?.user) {
-          setUser(context.user);
-        }
-      } catch (err) {
-        console.log("Not inside Warpcast");
+        const context = await waitForContext();
+        setUser(context.user);
+      } catch (e) {
+        console.log("Not in Warpcast");
       }
     }
 
@@ -38,7 +43,7 @@ export default function Home() {
           <p>Your FID: {user.fid}</p>
         </>
       ) : (
-        <p>Waiting for Warpcast context...</p>
+        <p>Loading Mini App...</p>
       )}
     </div>
   );
