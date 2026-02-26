@@ -3,41 +3,58 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  const [points, setPoints] = useState(0);
+  const [checkedIn, setCheckedIn] = useState(false);
 
   useEffect(() => {
-    async function init() {
-      try {
-        const sdkModule = await import("@farcaster/miniapp-sdk");
-        const sdk: any = sdkModule.default;
+    const savedPoints = localStorage.getItem("points");
+    const lastCheck = localStorage.getItem("lastCheck");
+    const today = new Date().toDateString();
 
-        await sdk.actions.ready();
-
-        // 🔥 Listen for context event
-        sdk.on("context", (context: any) => {
-          if (context?.user) {
-            setUser(context.user);
-          }
-        });
-      } catch (err) {
-        console.log("Not inside Warpcast");
-      }
+    if (savedPoints) {
+      setPoints(parseInt(savedPoints));
     }
 
-    init();
+    if (lastCheck === today) {
+      setCheckedIn(true);
+    }
   }, []);
+
+  const handleCheckIn = () => {
+    const today = new Date().toDateString();
+
+    if (checkedIn) return;
+
+    const newPoints = points + 10;
+
+    setPoints(newPoints);
+    setCheckedIn(true);
+
+    localStorage.setItem("points", newPoints.toString());
+    localStorage.setItem("lastCheck", today);
+  };
 
   return (
     <div style={{ padding: 40, textAlign: "center" }}>
-      <h1>🚀 My Real Farcaster Mini App</h1>
+      <h1>🔥 Daily Check-In Mini App</h1>
 
-      {user ? (
-        <>
-          <h2>Welcome @{user.username}</h2>
-          <p>Your FID: {user.fid}</p>
-        </>
+      <h2>Total Points: {points}</h2>
+
+      {checkedIn ? (
+        <p>✅ Already checked in today</p>
       ) : (
-        <p>Loading Mini App...</p>
+        <button
+          onClick={handleCheckIn}
+          style={{
+            padding: 12,
+            background: "black",
+            color: "white",
+            borderRadius: 8,
+            cursor: "pointer"
+          }}
+        >
+          Check In (+10)
+        </button>
       )}
     </div>
   );
