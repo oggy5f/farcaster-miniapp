@@ -1,122 +1,55 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../lib/supabase";
+import { sdk } from "@farcaster/miniapp-sdk";
 
 export default function Home() {
+  const [ready, setReady] = useState(false);
   const [fid, setFid] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
-  const [points, setPoints] = useState<number>(0);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadUser() {
+    const init = async () => {
       try {
-        const sdkModule = await import("@farcaster/miniapp-sdk");
-        const sdk: any = sdkModule.default;
-
+        // 🔥 VERY IMPORTANT (Warpcast ke liye)
         await sdk.actions.ready();
 
-        let timeout = setTimeout(() => {
-          setLoading(false);
-        }, 3000);
+        // 👇 Context safely load karo
+        const context = await sdk.context;
 
-        sdk.on("context" as any, async (context: any) => {
-          clearTimeout(timeout);
-
-          if (context?.user) {
-            setFid(context.user.fid);
-            setUsername(context.user.username);
-            await loadPoints(context.user.fid);
-          }
-
-          setLoading(false);
-        });
-      } catch (err) {
-        setLoading(false);
+        if (context?.user) {
+          setFid(context.user.fid);
+          setUsername(context.user.username ?? null);
+        }
+      } catch (error) {
+        console.log("Browser me open hua hai ya SDK load nahi hua");
       }
-    }
 
-    loadUser();
+      setReady(true);
+    };
+
+    init();
   }, []);
 
-  async function loadPoints(userFid: number) {
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .eq("fid", userFid)
-      .single();
-
-    if (data) {
-      setPoints(data.points || 0);
-    }
+  if (!ready) {
+    return (
+      <div style={{ padding: 20 }}>
+        Loading Mini App...
+      </div>
+    );
   }
-
-  async function handleCheckIn() {
-    if (!fid) return;
-
-    const today = new Date().toISOString().split("T")[0];
-
-    const { data } = await supabase
-      .from("users")
-      .select("*")
-      .eq("fid", fid)
-      .single();
-
-    if (!data) {
-      await supabase.from("users").insert({
-        fid,
-        username,
-        points: 10,
-        last_checkin: today,
-      });
-
-      setPoints(10);
-      return;
-    }
-
-    if (data.last_checkin === today) {
-      alert("Already checked in today!");
-      return;
-    }
-
-    const newPoints = (data.points || 0) + 10;
-
-    await supabase
-      .from("users")
-      .update({
-        points: newPoints,
-        last_checkin: today,
-      })
-      .eq("fid", fid);
-
-    setPoints(newPoints);
-  }
-
-  if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
 
   return (
-    <div style={{ padding: 40, textAlign: "center" }}>
+    <div style={{ padding: 20 }}>
       <h1>🚀 Daily Check-In Mini App</h1>
 
-      {username ? (
+      {fid ? (
         <>
-          <h2>Welcome @{username}</h2>
-          <p>Your Points: {points}</p>
-
-          <button
-            onClick={handleCheckIn}
-            style={{
-              padding: "10px 20px",
-              fontSize: "16px",
-              cursor: "pointer",
-            }}
-          >
-            Check In (+10)
-          </button>
+          <p>Welcome, {username}</p>
+          <p>Your FID: {fid}</p>
         </>
       ) : (
-        <p>Open inside Warpcast</p>
+        <p>Warpcast ke andar open karo 👆</p>
       )}
     </div>
   );
