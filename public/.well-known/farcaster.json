@@ -1,17 +1,17 @@
 {
   "accountAssociation": {
-    "header": "eyJmaWQiOjUyNTAzOCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGM2QTZlZjYyNTQzRDAwNWNCRjgwMDk5NjFhRDg0Y2VGNTExMThhNzUifQ",
-    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItbWluaWFwcC1iZXJ5bC52ZXJjZWwuYXBwIn0",
-    "signature": "/DL40XEKBajmXisMG2cePn1mgnk85GDayDkR52lbR6oyin09A8hbAdCAPzJneD9ebb25M0mjtmoYDyte6x+zUhs="
+    "header": "eyJmaWQiOjUyNTAzOCwidHlwZSI6ImN1c3RvZGlhbl9zZXJ2aWNlIiwiaWQiOiIweGM2QTZlZjYyNTQzRDAwNWNCRjgwMDk5NjFhRDg0Y2VGNTExMThhNzUi",
+    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItbWluaWFwcC1pc2NjLnZlcmNlbC5hcHAifQ",
+    "signature": "/DL40XEKBaJmXi5mG2cePm1gmk85GDavDkR52lBr6oyin09A8hAdCAPzJneD9ebb25M0mjtm0YDte6x+zUhs="
   },
   "miniApp": {
-    "version": "2",
-    "name": "Farcaster Mini App",
-    "iconUrl": "https://farcaster-miniapp-beryl.vercel.app/icon.png",
-    "homeUrl": "https://farcaster-miniapp-beryl.vercel.app",
-    "imageUrl": "https://farcaster-miniapp-beryl.vercel.app/icon.png",
+    "version": "3",
+    "name": "Daily Check-In Mini App",
+    "iconUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
+    "homeUrl": "https://farcaster-miniapp-iscc.vercel.app",
+    "imageUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
     "buttonTitle": "Open Mini App",
-    "splashImageUrl": "https://farcaster-miniapp-beryl.vercel.app/icon.png",
+    "splashImageUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
     "splashBackgroundColor": "#000000"
   }
 }
