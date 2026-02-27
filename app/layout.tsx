@@ -2,12 +2,27 @@ import "./globals.css";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Farcaster Mini App",
-  description: "Daily Check-In Mini App",
+  title: "Daily Check-In Mini App",
+  description: "Farcaster Daily Check-In",
 
-  // 🔥 IMPORTANT FOR WARPCAST
+  openGraph: {
+    title: "Daily Check-In Mini App",
+    description: "Open inside Warpcast",
+    images: [
+      {
+        url: "https://farcaster-miniapp-beryl.vercel.app/icon.png",
+      },
+    ],
+  },
+
   other: {
-    "fc:miniapp": "true",
+    "fc:frame": "vNext",
+    "fc:frame:image":
+      "https://farcaster-miniapp-beryl.vercel.app/icon.png",
+    "fc:frame:button:1": "Open Mini App",
+    "fc:frame:button:1:action": "link",
+    "fc:frame:button:1:target":
+      "https://farcaster-miniapp-beryl.vercel.app",
   },
 };
 
