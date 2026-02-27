@@ -5,7 +5,7 @@
     "signature": "/DL40XEKBajmXisMG2cePn1mgnk85GDayDkR52lbR6oyin09A8hbAdCAPzJneD9ebb25M0mjtmoYDyte6x+zUhs="
   },
   "miniApp": {
-    "version": "1",
+    "version": "2",
     "name": "Farcaster Mini App",
     "iconUrl": "https://farcaster-miniapp-beryl.vercel.app/icon.png",
     "homeUrl": "https://farcaster-miniapp-beryl.vercel.app",
