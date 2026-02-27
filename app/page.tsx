@@ -1,60 +1,117 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function Home() {
-  const [points, setPoints] = useState(0);
-  const [checkedIn, setCheckedIn] = useState(false);
+  const [fid, setFid] = useState<number | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [points, setPoints] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedPoints = localStorage.getItem("points");
-    const lastCheck = localStorage.getItem("lastCheck");
-    const today = new Date().toDateString();
+    async function loadUser() {
+      try {
+        const sdkModule = await import("@farcaster/miniapp-sdk");
+        const sdk: any = sdkModule.default;
 
-    if (savedPoints) {
-      setPoints(parseInt(savedPoints));
+        await sdk.actions.ready();
+
+        sdk.on("context" as any, async (context: any) => {
+          if (context?.user) {
+            setFid(context.user.fid);
+            setUsername(context.user.username);
+            await loadPoints(context.user.fid);
+          }
+        });
+      } catch (err) {
+        console.log("Not inside Warpcast");
+        setLoading(false);
+      }
     }
 
-    if (lastCheck === today) {
-      setCheckedIn(true);
-    }
+    loadUser();
   }, []);
 
-  const handleCheckIn = () => {
-    const today = new Date().toDateString();
+  async function loadPoints(userFid: number) {
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("fid", userFid)
+      .single();
 
-    if (checkedIn) return;
+    if (data) {
+      setPoints(data.points || 0);
+    }
 
-    const newPoints = points + 10;
+    setLoading(false);
+  }
+
+  async function handleCheckIn() {
+    if (!fid) return;
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const { data } = await supabase
+      .from("users")
+      .select("*")
+      .eq("fid", fid)
+      .single();
+
+    if (!data) {
+      await supabase.from("users").insert({
+        fid,
+        username,
+        points: 10,
+        last_checkin: today,
+      });
+
+      setPoints(10);
+      return;
+    }
+
+    if (data.last_checkin === today) {
+      alert("Already checked in today!");
+      return;
+    }
+
+    const newPoints = (data.points || 0) + 10;
+
+    await supabase
+      .from("users")
+      .update({
+        points: newPoints,
+        last_checkin: today,
+      })
+      .eq("fid", fid);
 
     setPoints(newPoints);
-    setCheckedIn(true);
+  }
 
-    localStorage.setItem("points", newPoints.toString());
-    localStorage.setItem("lastCheck", today);
-  };
+  if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
 
   return (
     <div style={{ padding: 40, textAlign: "center" }}>
-      <h1>🔥 Daily Check-In Mini App</h1>
+      <h1>🚀 Daily Check-In Mini App</h1>
 
-      <h2>Total Points: {points}</h2>
+      {username ? (
+        <>
+          <h2>Welcome @{username}</h2>
+          <p>Your Points: {points}</p>
 
-      {checkedIn ? (
-        <p>✅ Already checked in today</p>
+          <button
+            onClick={handleCheckIn}
+            style={{
+              padding: "10px 20px",
+              fontSize: "16px",
+              cursor: "pointer",
+            }}
+          >
+            Check In (+10)
+          </button>
+        </>
       ) : (
-        <button
-          onClick={handleCheckIn}
-          style={{
-            padding: 12,
-            background: "black",
-            color: "white",
-            borderRadius: 8,
-            cursor: "pointer"
-          }}
-        >
-          Check In (+10)
-        </button>
+        <p>Open inside Warpcast</p>
       )}
     </div>
   );
