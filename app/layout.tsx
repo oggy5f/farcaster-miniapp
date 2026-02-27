@@ -1,30 +1,4 @@
 import "./globals.css";
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "Daily Check-In Mini App",
-  description: "Farcaster Daily Check-In",
-
-  openGraph: {
-    title: "Daily Check-In Mini App",
-    description: "Open inside Warpcast",
-    images: [
-      {
-        url: "https://farcaster-miniapp-beryl.vercel.app/icon.png",
-      },
-    ],
-  },
-
-  other: {
-    "fc:frame": "vNext",
-    "fc:frame:image":
-      "https://farcaster-miniapp-beryl.vercel.app/icon.png",
-    "fc:frame:button:1": "Open Mini App",
-    "fc:frame:button:1:action": "link",
-    "fc:frame:button:1:target":
-      "https://farcaster-miniapp-beryl.vercel.app",
-  },
-};
 
 export default function RootLayout({
   children,
@@ -33,6 +7,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <title>Daily Check-In Mini App</title>
+        <meta name="description" content="Farcaster Mini App" />
+        <meta name="fc:miniapp" content="true" />
+      </head>
       <body>{children}</body>
     </html>
   );
