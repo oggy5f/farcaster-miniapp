@@ -1,11 +1,11 @@
 {
   "accountAssociation": {
-    "header": "eyJmaWQiOjUyNTAzOCwidHlwZSI6ImN1c3RvZGlhbl9zZXJ2aWNlIiwiaWQiOiIweGM2QTZlZjYyNTQzRDAwNWNCRjgwMDk5NjFhRDg0Y2VGNTExMThhNzUi",
+    "header": "eyJmaWQiOjUyNTAzOCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGM2QTZlZjYyNTQzRDAwNWNCRjgwMDk5NjFhRDg0Y2VGNTExMThhNzUifQ",
     "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItbWluaWFwcC1pc2NjLnZlcmNlbC5hcHAifQ",
-    "signature": "/DL40XEKBaJmXi5mG2cePm1gmk85GDavDkR52lBr6oyin09A8hAdCAPzJneD9ebb25M0mjtm0YDte6x+zUhs="
+    "signature": "mADLRxic7MzSEPV8NQhvfGWUJF8QkXsuoQ5TbcScUnk1r6lsZ+3Bih2FSWfGxIJHf9nE1MnGNmsCDQVVrshzixw="
   },
   "miniApp": {
-    "version": "3",
+    "version": "4",
     "name": "Daily Check-In Mini App",
     "iconUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
     "homeUrl": "https://farcaster-miniapp-iscc.vercel.app",
