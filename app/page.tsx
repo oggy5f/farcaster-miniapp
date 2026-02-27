@@ -17,15 +17,22 @@ export default function Home() {
 
         await sdk.actions.ready();
 
+        let timeout = setTimeout(() => {
+          setLoading(false);
+        }, 3000);
+
         sdk.on("context" as any, async (context: any) => {
+          clearTimeout(timeout);
+
           if (context?.user) {
             setFid(context.user.fid);
             setUsername(context.user.username);
             await loadPoints(context.user.fid);
           }
+
+          setLoading(false);
         });
       } catch (err) {
-        console.log("Not inside Warpcast");
         setLoading(false);
       }
     }
@@ -43,8 +50,6 @@ export default function Home() {
     if (data) {
       setPoints(data.points || 0);
     }
-
-    setLoading(false);
   }
 
   async function handleCheckIn() {
