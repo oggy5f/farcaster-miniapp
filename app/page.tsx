@@ -1,36 +1,41 @@
 "use client";
 
 import { useEffect } from "react";
+import { sdk } from "@farcaster/miniapp-sdk";
 
 export default function Home() {
   useEffect(() => {
-    const loadSDK = async () => {
+    const init = async () => {
       try {
-        // Dynamically load Farcaster SDK
-        const script = document.createElement("script");
-        script.src = "https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js";
-        script.async = true;
-        document.body.appendChild(script);
-
-        script.onload = async () => {
-          const sdk = (window as any).farcaster;
-          if (sdk?.actions?.ready) {
-            await sdk.actions.ready();
-            console.log("Mini App Ready called");
-          }
-        };
+        await sdk.actions.ready();
+        console.log("Mini App Ready called");
       } catch (err) {
-        console.error("SDK load error:", err);
+        console.error("SDK error:", err);
       }
     };
 
-    loadSDK();
+    init();
   }, []);
 
   return (
-    <main style={{ padding: 20 }}>
+    <main style={{ padding: 24 }}>
       <h1>🚀 Daily Check-In Mini App</h1>
       <p>Mini App Active</p>
+
+      <button
+        style={{
+          marginTop: 20,
+          padding: "12px 20px",
+          background: "#7c3aed",
+          color: "white",
+          border: "none",
+          borderRadius: 8,
+          fontSize: 16,
+          cursor: "pointer",
+        }}
+      >
+        ✅ Check In
+      </button>
     </main>
   );
 }
