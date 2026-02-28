@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export const metadata = {
   title: "Daily Check-In Mini App",
   description: "Daily check-in Farcaster Mini App",
@@ -16,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="fc:miniapp" content="true" />
+        <meta property="fc:miniapp" content="true" />
       </head>
       <body>{children}</body>
     </html>
