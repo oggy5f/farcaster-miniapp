@@ -1,17 +1,17 @@
 {
   "accountAssociation": {
     "header": "eyJmaWQiOjUyNTAzOCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweGM2QTZlZjYyNTQzRDAwNWNCRjgwMDk5NjFhRDg0Y2VGNTExMThhNzUifQ",
-    "payload": "eyJkb21haW4iOiJmYXJjYXN0ZXItbWluaWFwcC1pc2NjLnZlcmNlbC5hcHAifQ",
-    "signature": "mADLRxic7MzSEPV8NQhvfGWUJF8QkXsuoQ5TbcScUnk1r6lsZ+3Bih2FSWfGxIJHf9nE1MnGNmsCDQVVrshzixw="
+    "payload": "eyJkb21haW4iOiJyb2FubWluaS54eXoifQ",
+    "signature": "44YqYU9A1F3Urj+sRQMoTtbnO3zpMCEsD32l/KmGSJ1KiPFWQ4rXsFi+BK6eeDBRuvJrnHVQShP0AsFWwVwGzRs="
   },
   "miniApp": {
-    "version": "30",
+    "version": "1",
     "name": "Daily Check-In Mini App",
-    "iconUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
-    "homeUrl": "https://farcaster-miniapp-iscc.vercel.app",
-    "imageUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
+    "iconUrl": "https://roanmini.xyz/icon.png",
+    "homeUrl": "https://roanmini.xyz",
+    "imageUrl": "https://roanmini.xyz/icon.png",
     "buttonTitle": "Open Mini App",
-    "splashImageUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
+    "splashImageUrl": "https://roanmini.xyz/icon.png",
     "splashBackgroundColor": "#000000"
   }
 }
