@@ -5,7 +5,7 @@
     "signature": "mADLRxic7MzSEPV8NQhvfGWUJF8QkXsuoQ5TbcScUnk1r6lsZ+3Bih2FSWfGxIJHf9nE1MnGNmsCDQVVrshzixw="
   },
   "miniApp": {
-    "version": "7",
+    "version": "20",
     "name": "Daily Check-In Mini App",
     "iconUrl": "https://farcaster-miniapp-iscc.vercel.app/icon.png",
     "homeUrl": "https://farcaster-miniapp-iscc.vercel.app",
