@@ -1,16 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
+export const metadata = {
   title: "Daily Check-In Mini App",
   description: "Daily check-in Farcaster Mini App",
   openGraph: {
     title: "Daily Check-In Mini App",
     description: "Daily check-in Farcaster Mini App",
     images: ["https://roanmini.xyz/icon.png"],
-  },
-  other: {
-    "fc:miniapp": "true",
   },
 };
 
@@ -21,6 +15,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <meta name="fc:miniapp" content="true" />
+      </head>
       <body>{children}</body>
     </html>
   );
