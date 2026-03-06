@@ -4,11 +4,11 @@
     "payload": "eyJkb21haW4iOiJyb2FubWluaS54eXoifQ",
     "signature": "44YqYU9A1F3Urj+sRQMoTtbnO3zpMCEsD32l/KmGSJ1KiPFWQ4rXsFi+BK6eeDBRuvJrnHVQShP0AsFWwVwGzRs="
   },
-  "miniApp": {
+  "miniapp": {
     "version": "1",
     "name": "Daily Check-In Mini App",
     "iconUrl": "https://roanmini.xyz/icon.png",
-    "homeUrl": "https://roanmini.xyz/",
+    "homeUrl": "https://roanmini.xyz",
     "imageUrl": "https://roanmini.xyz/icon.png",
     "buttonTitle": "Open Mini App",
     "splashImageUrl": "https://roanmini.xyz/icon.png",
