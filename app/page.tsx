@@ -7,7 +7,7 @@ export default function Home() {
 
   useEffect(() => {
 
-    const loadContext = async () => {
+    const init = async () => {
 
       try {
 
@@ -15,27 +15,28 @@ export default function Home() {
 
         console.log("Farcaster context:", context);
 
+        // tell Warpcast app is ready
+        await sdk.actions.ready();
+
       } catch (err) {
 
-        console.log("Farcaster context error:", err);
+        console.log("SDK error:", err);
 
       }
 
     };
 
-    loadContext();
+    init();
 
   }, []);
 
   return (
 
-    <main style={{ padding: 40 }}>
+    <main style={{padding:40,fontFamily:"sans-serif"}}>
 
-      <h1>Farcaster Mini App Test</h1>
+      <h1>Daily Check-In Mini App</h1>
 
-      <p>
-        Open console to see Farcaster context
-      </p>
+      <p>Farcaster Mini App Loaded 🚀</p>
 
     </main>
 
