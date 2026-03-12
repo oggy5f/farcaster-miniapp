@@ -6,12 +6,12 @@ import { supabase } from "@/lib/supabase";
 
 export default function Home() {
 
-  const [fcUser, setFcUser] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
 
   useEffect(() => {
 
-    const init = async () => {
+    const loadUser = async () => {
 
       try {
 
@@ -19,27 +19,25 @@ export default function Home() {
 
         const context = await sdk.context;
 
-        const user = context?.user;
+        const fcUser = context?.user;
 
-        if (!user) return;
+        if (!fcUser) return;
 
-        setFcUser(user);
+        setUser(fcUser);
 
-        // check user in database
         const { data } = await supabase
           .from("users")
           .select("*")
-          .eq("fid", user.fid)
+          .eq("fid", fcUser.fid)
           .single();
 
         if (!data) {
 
-          // create user
           const { data: newUser } = await supabase
             .from("users")
             .insert({
-              fid: user.fid,
-              username: user.username,
+              fid: fcUser.fid,
+              username: fcUser.username,
               points: 0,
               streak: 0
             })
@@ -54,31 +52,31 @@ export default function Home() {
 
         }
 
-      } catch (error) {
+      } catch (err) {
 
-        console.log("Error loading user", error);
+        console.log(err);
 
       }
 
     };
 
-    init();
+    loadUser();
 
   }, []);
 
   return (
 
-    <main style={{ padding: 24 }}>
+    <main style={{ padding: 20 }}>
 
-      <h1>Daily Check-In Mini App 🚀</h1>
+      <h2>Daily Check-In Mini App 🚀</h2>
 
-      {!fcUser && <p>Loading Farcaster user...</p>}
+      {!user && <p>Loading user...</p>}
 
-      {fcUser && (
+      {user && (
         <>
-          <p>FID: {fcUser.fid}</p>
-          <p>Username: {fcUser.username}</p>
-          <p>Display Name: {fcUser.displayName}</p>
+          <p>FID: {user.fid}</p>
+          <p>Username: {user.username}</p>
+          <p>Display Name: {user.displayName}</p>
         </>
       )}
 
