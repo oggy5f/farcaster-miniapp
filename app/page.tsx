@@ -48,7 +48,9 @@ export default function Home() {
           <p>FID: {user.fid}</p>
           <p>Username: {user.username}</p>
           <p>Display Name: {user.displayName}</p>
-          <p>Wallet: {user.custodyAddress}</p>
+          <p>
+  Wallet: {user.custodyAddress || user.verifiedAddresses?.ethAddresses?.[0] || "Not available"}
+</p>
         </>
       )}
 
