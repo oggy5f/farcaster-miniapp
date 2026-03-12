@@ -2,12 +2,23 @@ import "./globals.css";
 
 export const metadata = {
   title: "Daily Check-In Mini App",
-  description: "Daily check-in Farcaster Mini App",
-  openGraph: {
-    title: "Daily Check-In Mini App",
-    description: "Daily check-in Farcaster Mini App",
-    images: ["https://roanmini.xyz/icon.png"],
-  },
+  description: "Farcaster Mini App",
+  other: {
+    "fc:miniapp": JSON.stringify({
+      version: "1",
+      imageUrl: "https://roanmini.xyz/icon.png",
+      button: {
+        title: "Open Mini App",
+        action: {
+          type: "launch_frame",
+          name: "Daily Check-In Mini App",
+          url: "https://roanmini.xyz",
+          splashImageUrl: "https://roanmini.xyz/icon.png",
+          splashBackgroundColor: "#000000"
+        }
+      }
+    })
+  }
 };
 
 export default function RootLayout({
@@ -17,9 +28,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
-        <meta property="fc:miniapp" content="true" />
-      </head>
       <body>{children}</body>
     </html>
   );
