@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
 
 export default function Home() {
+
+  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
 
@@ -11,16 +13,19 @@ export default function Home() {
 
       try {
 
+        // tell Warpcast app is ready
+        await sdk.actions.ready();
+
+        // get Farcaster context
         const context = await sdk.context;
 
         console.log("Farcaster context:", context);
 
-        // tell Warpcast app is ready
-        await sdk.actions.ready();
+        setUser(context?.user);
 
       } catch (err) {
 
-        console.log("SDK error:", err);
+        console.error("Mini App SDK error:", err);
 
       }
 
@@ -32,11 +37,20 @@ export default function Home() {
 
   return (
 
-    <main style={{padding:40,fontFamily:"sans-serif"}}>
+    <main style={{ padding: 24, fontFamily: "sans-serif" }}>
 
       <h1>Daily Check-In Mini App</h1>
 
-      <p>Farcaster Mini App Loaded 🚀</p>
+      {!user && <p>Loading Farcaster user...</p>}
+
+      {user && (
+        <>
+          <p>FID: {user.fid}</p>
+          <p>Username: {user.username}</p>
+          <p>Display Name: {user.displayName}</p>
+          <p>Wallet: {user.custodyAddress}</p>
+        </>
+      )}
 
     </main>
 
