@@ -3,66 +3,63 @@ export const dynamic = "force-dynamic";
 "use client";
 
 import { useEffect, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
 import { sdk } from "@farcaster/miniapp-sdk";
-import { supabase } from "@/lib/supabase";
 
 export default function Home() {
 
   const [user, setUser] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   useEffect(() => {
 
-    const loadUser = async () => {
+    const init = async () => {
 
-      try {
+      await sdk.actions.ready();
 
-        await sdk.actions.ready();
+      const context = await sdk.context;
 
-        const context = await sdk.context;
+      const fcUser = context?.user;
 
-        const fcUser = context?.user;
+      if (!fcUser) return;
 
-        if (!fcUser) return;
+      setUser(fcUser);
 
-        setUser(fcUser);
+      const { data } = await supabase
+        .from("users")
+        .select("*")
+        .eq("fid", fcUser.fid)
+        .single();
 
-        const { data } = await supabase
+      if (!data) {
+
+        const { data: newUser } = await supabase
           .from("users")
-          .select("*")
-          .eq("fid", fcUser.fid)
+          .insert({
+            fid: fcUser.fid,
+            username: fcUser.username,
+            points: 0,
+            streak: 0
+          })
+          .select()
           .single();
 
-        if (!data) {
+        setDbUser(newUser);
 
-          const { data: newUser } = await supabase
-            .from("users")
-            .insert({
-              fid: fcUser.fid,
-              username: fcUser.username,
-              points: 0,
-              streak: 0
-            })
-            .select()
-            .single();
+      } else {
 
-          setDbUser(newUser);
-
-        } else {
-
-          setDbUser(data);
-
-        }
-
-      } catch (err) {
-
-        console.log(err);
+        setDbUser(data);
 
       }
 
     };
 
-    loadUser();
+    init();
 
   }, []);
 
