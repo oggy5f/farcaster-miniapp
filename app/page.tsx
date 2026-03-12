@@ -2,58 +2,61 @@
 
 import { useEffect, useState } from "react";
 import { sdk } from "@farcaster/miniapp-sdk";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from "@/lib/supabase";
 
 export default function Home() {
 
-  const [user, setUser] = useState<any>(null);
+  const [fcUser, setFcUser] = useState<any>(null);
   const [dbUser, setDbUser] = useState<any>(null);
 
   useEffect(() => {
 
     const init = async () => {
 
-      await sdk.actions.ready();
+      try {
 
-      const context = await sdk.context;
+        await sdk.actions.ready();
 
-      const fcUser = context?.user;
+        const context = await sdk.context;
 
-      setUser(fcUser);
+        const user = context?.user;
 
-      if (!fcUser) return;
+        if (!user) return;
 
-      // check user in database
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("fid", fcUser.fid)
-        .single();
+        setFcUser(user);
 
-      if (!data) {
-
-        // create user
-        const { data: newUser } = await supabase
+        // check user in database
+        const { data } = await supabase
           .from("users")
-          .insert({
-            fid: fcUser.fid,
-            username: fcUser.username,
-            points: 0,
-            streak: 0
-          })
-          .select()
+          .select("*")
+          .eq("fid", user.fid)
           .single();
 
-        setDbUser(newUser);
+        if (!data) {
 
-      } else {
+          // create user
+          const { data: newUser } = await supabase
+            .from("users")
+            .insert({
+              fid: user.fid,
+              username: user.username,
+              points: 0,
+              streak: 0
+            })
+            .select()
+            .single();
 
-        setDbUser(data);
+          setDbUser(newUser);
+
+        } else {
+
+          setDbUser(data);
+
+        }
+
+      } catch (error) {
+
+        console.log("Error loading user", error);
 
       }
 
@@ -67,14 +70,15 @@ export default function Home() {
 
     <main style={{ padding: 24 }}>
 
-      <h1>Daily Check-In Mini App</h1>
+      <h1>Daily Check-In Mini App 🚀</h1>
 
-      {!user && <p>Loading user...</p>}
+      {!fcUser && <p>Loading Farcaster user...</p>}
 
-      {user && (
+      {fcUser && (
         <>
-          <p>FID: {user.fid}</p>
-          <p>Username: {user.username}</p>
+          <p>FID: {fcUser.fid}</p>
+          <p>Username: {fcUser.username}</p>
+          <p>Display Name: {fcUser.displayName}</p>
         </>
       )}
 
