@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
+export const dynamic = "force-dynamic";
+
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -14,50 +16,58 @@ export default function Home() {
 
   useEffect(() => {
 
-    async function loadUser() {
+    async function init() {
 
-      const fc = (window as any).farcaster;
+      try {
 
-      if (!fc) return;
+        const fc = (window as any).farcaster;
 
-      const context = await fc.getContext();
+        if (!fc) return;
 
-      // 👇 IMPORTANT
-      await fc.actions.ready();
+        const context = await fc.getContext();
 
-      const fid = context.user.fid;
-      const username = context.user.username;
-      const displayName = context.user.displayName;
+        // ✅ tell Warpcast app is ready
+        await fc.actions.ready();
 
-      setUser({
-        fid,
-        username,
-        displayName
-      });
+        const fid = context.user?.fid;
+        const username = context.user?.username;
+        const displayName = context.user?.displayName;
 
-      const { data } = await supabase
-        .from("users")
-        .select("*")
-        .eq("fid", fid)
-        .single();
-
-      if (!data) {
-
-        await supabase.from("users").insert({
-          fid: fid,
-          username: username,
-          display_name: displayName
+        setUser({
+          fid,
+          username,
+          displayName
         });
 
+        // check user
+        const { data } = await supabase
+          .from("users")
+          .select("*")
+          .eq("fid", fid)
+          .single();
+
+        // insert if not exists
+        if (!data) {
+
+          await supabase.from("users").insert({
+            fid: fid,
+            username: username,
+            display_name: displayName
+          });
+
+        }
+
+      } catch (err) {
+        console.log("Mini app error:", err);
       }
 
     }
 
-    loadUser();
+    init();
 
   }, []);
 
-  if (!user) return <div>Loading...</div>;
+  if (!user) return <div style={{padding:20}}>Loading Mini App...</div>;
 
   return (
 
