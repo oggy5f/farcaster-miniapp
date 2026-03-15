@@ -3,11 +3,9 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-export const dynamic = "force-dynamic";
-
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
 );
 
 export default function Home() {
@@ -20,14 +18,17 @@ export default function Home() {
 
       try {
 
-        const fc = (window as any).farcaster;
+        const sdk = (window as any).farcaster;
 
-        if (!fc) return;
+        if (!sdk) {
+          console.log("Not inside Farcaster");
+          return;
+        }
 
-        const context = await fc.getContext();
+        const context = await sdk.getContext();
 
-        // ✅ tell Warpcast app is ready
-        await fc.actions.ready();
+        // important
+        await sdk.actions.ready();
 
         const fid = context.user?.fid;
         const username = context.user?.username;
@@ -39,14 +40,16 @@ export default function Home() {
           displayName
         });
 
-        // check user
+        if (!fid) return;
+
+        // check existing user
         const { data } = await supabase
           .from("users")
           .select("*")
           .eq("fid", fid)
           .single();
 
-        // insert if not exists
+        // insert new user
         if (!data) {
 
           await supabase.from("users").insert({
@@ -58,7 +61,7 @@ export default function Home() {
         }
 
       } catch (err) {
-        console.log("Mini app error:", err);
+        console.log("Mini App Error:", err);
       }
 
     }
@@ -67,7 +70,7 @@ export default function Home() {
 
   }, []);
 
-  if (!user) return <div style={{padding:20}}>Loading Mini App...</div>;
+  if (!user) return <div style={{padding:20}}>Loading...</div>;
 
   return (
 
