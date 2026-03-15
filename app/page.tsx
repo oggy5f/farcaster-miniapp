@@ -2,63 +2,61 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
-import { sdk } from "@farcaster/miniapp-sdk";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Home() {
 
   const [user, setUser] = useState<any>(null);
-  const [dbUser, setDbUser] = useState<any>(null);
 
   useEffect(() => {
 
-    const init = async () => {
+    async function loadUser() {
 
-      await sdk.actions.ready();
+      const fc = (window as any).farcaster;
 
-      const context = await sdk.context;
-      const fcUser = context?.user;
+      if (!fc) return;
 
-      if (!fcUser) return;
+      const context = await fc.getContext();
 
-      setUser(fcUser);
+      const fid = context.user.fid;
+      const username = context.user.username;
+      const displayName = context.user.displayName;
 
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-      );
+      setUser({
+        fid,
+        username,
+        displayName
+      });
 
+      // CHECK USER
       const { data } = await supabase
         .from("users")
         .select("*")
-        .eq("fid", fcUser.fid)
+        .eq("fid", fid)
         .single();
 
+      // INSERT USER IF NOT EXISTS
       if (!data) {
 
-        const { data: newUser } = await supabase
-          .from("users")
-          .insert({
-            fid: fcUser.fid,
-            username: fcUser.username,
-            points: 0,
-            streak: 0
-          })
-          .select()
-          .single();
-
-        setDbUser(newUser);
-
-      } else {
-
-        setDbUser(data);
+        await supabase.from("users").insert({
+          fid: fid,
+          username: username,
+          display_name: displayName
+        });
 
       }
 
-    };
+    }
 
-    init();
+    loadUser();
 
   }, []);
+
+  if (!user) return <div>Loading...</div>;
 
   return (
 
@@ -66,22 +64,9 @@ export default function Home() {
 
       <h2>Daily Check-In Mini App 🚀</h2>
 
-      {!user && <p>Loading user...</p>}
-
-      {user && (
-        <>
-          <p>FID: {user.fid}</p>
-          <p>Username: {user.username}</p>
-          <p>Display Name: {user.displayName}</p>
-        </>
-      )}
-
-      {dbUser && (
-        <>
-          <p>Points: {dbUser.points}</p>
-          <p>Streak: {dbUser.streak}</p>
-        </>
-      )}
+      <p>FID: {user.fid}</p>
+      <p>Username: {user.username}</p>
+      <p>Display Name: {user.displayName}</p>
 
     </main>
 
