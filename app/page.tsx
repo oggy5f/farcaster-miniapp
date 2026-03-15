@@ -22,6 +22,9 @@ export default function Home() {
 
       const context = await fc.getContext();
 
+      // 👇 IMPORTANT
+      await fc.actions.ready();
+
       const fid = context.user.fid;
       const username = context.user.username;
       const displayName = context.user.displayName;
@@ -32,14 +35,12 @@ export default function Home() {
         displayName
       });
 
-      // CHECK USER
       const { data } = await supabase
         .from("users")
         .select("*")
         .eq("fid", fid)
         .single();
 
-      // INSERT USER IF NOT EXISTS
       if (!data) {
 
         await supabase.from("users").insert({
