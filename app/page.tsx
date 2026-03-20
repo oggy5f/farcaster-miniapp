@@ -3,14 +3,10 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
-);
-
 export default function Home() {
 
   const [user, setUser] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
 
@@ -21,13 +17,12 @@ export default function Home() {
         const sdk = (window as any).farcaster;
 
         if (!sdk) {
-          console.log("Not inside Farcaster");
+          setError("Not inside Farcaster");
           return;
         }
 
         const context = await sdk.getContext();
 
-        // important
         await sdk.actions.ready();
 
         const fid = context.user?.fid;
@@ -40,28 +35,33 @@ export default function Home() {
           displayName
         });
 
+        // 👉 create supabase inside function (SAFE)
+        const supabase = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL as string,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+        );
+
         if (!fid) return;
 
-        // check existing user
         const { data } = await supabase
           .from("users")
           .select("*")
           .eq("fid", fid)
           .single();
 
-        // insert new user
         if (!data) {
 
           await supabase.from("users").insert({
-            fid: fid,
-            username: username,
+            fid,
+            username,
             display_name: displayName
           });
 
         }
 
-      } catch (err) {
-        console.log("Mini App Error:", err);
+      } catch (err: any) {
+        console.log(err);
+        setError(err.message);
       }
 
     }
@@ -70,20 +70,16 @@ export default function Home() {
 
   }, []);
 
+  if (error) return <div style={{padding:20}}>Error: {error}</div>;
+
   if (!user) return <div style={{padding:20}}>Loading...</div>;
 
   return (
-
     <main style={{ padding: 20 }}>
-
       <h2>Daily Check-In Mini App 🚀</h2>
-
       <p>FID: {user.fid}</p>
       <p>Username: {user.username}</p>
       <p>Display Name: {user.displayName}</p>
-
     </main>
-
   );
-
 }
