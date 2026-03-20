@@ -2,43 +2,34 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { sdk } from "@farcaster/frame-sdk";
 
 export default function Home() {
-
   const [user, setUser] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-
     async function init() {
-
       try {
-
-        const sdk = (window as any).farcaster;
-
-        if (!sdk) {
-          setError("Not inside Farcaster");
-          return;
-        }
-
-        const context = await sdk.getContext();
-
+        // ✅ READY call (IMPORTANT)
         await sdk.actions.ready();
 
-        const fid = context.user?.fid;
-        const username = context.user?.username;
-        const displayName = context.user?.displayName;
+        const context = await sdk.context;
+
+        const fid = context?.user?.fid;
+        const username = context?.user?.username;
+        const displayName = context?.user?.displayName;
 
         setUser({
           fid,
           username,
-          displayName
+          displayName,
         });
 
-        // 👉 create supabase inside function (SAFE)
+        // ✅ Supabase
         const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL as string,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
         );
 
         if (!fid) return;
@@ -50,29 +41,24 @@ export default function Home() {
           .single();
 
         if (!data) {
-
           await supabase.from("users").insert({
             fid,
             username,
-            display_name: displayName
+            display_name: displayName,
           });
-
         }
-
       } catch (err: any) {
         console.log(err);
         setError(err.message);
       }
-
     }
 
     init();
-
   }, []);
 
-  if (error) return <div style={{padding:20}}>Error: {error}</div>;
+  if (error) return <div style={{ padding: 20 }}>Error: {error}</div>;
 
-  if (!user) return <div style={{padding:20}}>Loading...</div>;
+  if (!user) return <div style={{ padding: 20 }}>Loading...</div>;
 
   return (
     <main style={{ padding: 20 }}>
