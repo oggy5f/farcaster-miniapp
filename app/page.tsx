@@ -9,6 +9,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
   useEffect(() => {
     async function init() {
       try {
@@ -16,7 +21,7 @@ export default function Home() {
 
         const context = await sdk.context;
 
-        const fid = context?.user?.fid;
+        const fid = Number(context?.user?.fid); // 🔥 FIX
         const username = context?.user?.username;
         const displayName = context?.user?.displayName;
 
@@ -25,11 +30,6 @@ export default function Home() {
           username,
           displayName,
         });
-
-        const supabase = createClient(
-          process.env.NEXT_PUBLIC_SUPABASE_URL!,
-          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-        );
 
         if (!fid) return;
 
@@ -62,40 +62,33 @@ export default function Home() {
 
     setLoading(true);
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    );
+    try {
+      const { data: existing, error: fetchError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("fid", user.fid)
+        .single();
 
-    // 👉 current data fetch
-    const { data: existing } = await supabase
-      .from("users")
-      .select("*")
-      .eq("fid", user.fid)
-      .single();
+      if (fetchError) throw fetchError;
 
-    if (!existing) {
-      setLoading(false);
-      return;
+      const newPoints = (existing.points || 0) + 10;
+
+      const { error: updateError } = await supabase
+        .from("users")
+        .update({
+          points: newPoints,
+          last_checkin: new Date().toISOString(),
+        })
+        .eq("fid", user.fid);
+
+      if (updateError) throw updateError;
+
+      alert("✅ Checked in! +10 points");
+    } catch (err: any) {
+      alert("❌ Error: " + err.message);
     }
-
-    const newPoints = (existing.points || 0) + 10;
-
-    const { error } = await supabase
-      .from("users")
-      .update({
-        points: newPoints,
-        last_checkin: new Date().toISOString(),
-      })
-      .eq("fid", user.fid);
 
     setLoading(false);
-
-    if (error) {
-      alert("Error: " + error.message);
-    } else {
-      alert("✅ Checked in! +10 points");
-    }
   }
 
   if (error) return <div style={{ padding: 20 }}>Error: {error}</div>;
