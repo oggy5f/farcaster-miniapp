@@ -7,7 +7,6 @@ import { sdk } from "@farcaster/frame-sdk";
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,42 +15,19 @@ export default function Home() {
 
   useEffect(() => {
     async function init() {
-      try {
-        await sdk.actions.ready();
+      await sdk.actions.ready();
 
-        const context = await sdk.context;
+      const context = await sdk.context;
 
-        const fid = Number(context?.user?.fid); // 🔥 FIX
-        const username = context?.user?.username;
-        const displayName = context?.user?.displayName;
+      const fid = Number(context?.user?.fid);
+      const username = context?.user?.username;
+      const displayName = context?.user?.displayName;
 
-        setUser({
-          fid,
-          username,
-          displayName,
-        });
-
-        if (!fid) return;
-
-        const { data } = await supabase
-          .from("users")
-          .select("*")
-          .eq("fid", fid)
-          .single();
-
-        if (!data) {
-          await supabase.from("users").insert({
-            fid,
-            username,
-            display_name: displayName,
-            points: 0,
-            streak: 0,
-          });
-        }
-      } catch (err: any) {
-        console.log(err);
-        setError(err.message);
-      }
+      setUser({
+        fid,
+        username,
+        displayName,
+      });
     }
 
     init();
@@ -62,16 +38,38 @@ export default function Home() {
 
     setLoading(true);
 
-    try {
-      const { data: existing, error: fetchError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("fid", user.fid)
-        .single();
+    // 👉 check if user exists
+    const { data: existing, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("fid", user.fid);
 
-      if (fetchError) throw fetchError;
+    if (error) {
+      alert(error.message);
+      setLoading(false);
+      return;
+    }
 
-      const newPoints = (existing.points || 0) + 10;
+    if (!existing || existing.length === 0) {
+      // 👉 INSERT
+      const { error: insertError } = await supabase.from("users").insert({
+        fid: user.fid,
+        username: user.username,
+        display_name: user.displayName,
+        points: 10,
+        streak: 1,
+        last_checkin: new Date().toISOString(),
+      });
+
+      if (insertError) {
+        alert(insertError.message);
+      } else {
+        alert("✅ First check-in! +10 points");
+      }
+    } else {
+      // 👉 UPDATE
+      const current = existing[0];
+      const newPoints = (current.points || 0) + 10;
 
       const { error: updateError } = await supabase
         .from("users")
@@ -81,17 +79,15 @@ export default function Home() {
         })
         .eq("fid", user.fid);
 
-      if (updateError) throw updateError;
-
-      alert("✅ Checked in! +10 points");
-    } catch (err: any) {
-      alert("❌ Error: " + err.message);
+      if (updateError) {
+        alert(updateError.message);
+      } else {
+        alert("✅ Checked in! +10 points");
+      }
     }
 
     setLoading(false);
   }
-
-  if (error) return <div style={{ padding: 20 }}>Error: {error}</div>;
 
   if (!user) return <div style={{ padding: 20 }}>Loading...</div>;
 
