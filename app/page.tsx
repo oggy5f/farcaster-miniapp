@@ -19,11 +19,10 @@ export default function Home() {
 
       const context = await sdk.context;
 
-      const fid = Number(context?.user?.fid);
+      // ✅ YAHI DAALNA THA (FIX)
+      const fid = context?.user?.fid?.toString();
       const username = context?.user?.username;
       const displayName = context?.user?.displayName;
-
-      console.log("USER:", fid, username);
 
       setUser({ fid, username, displayName });
     }
@@ -32,52 +31,32 @@ export default function Home() {
   }, []);
 
   async function handleCheckIn() {
-    if (!user) {
-      alert("User not loaded");
-      return;
-    }
+    if (!user) return;
 
     setLoading(true);
 
     try {
-      console.log("Checking user in DB...");
-
       const { data: existing, error } = await supabase
         .from("users")
         .select("*")
         .eq("fid", user.fid)
         .maybeSingle();
 
-      console.log("Existing:", existing);
-      if (error) {
-        console.log("ERROR FETCH:", error);
-        throw error;
-      }
+      if (error) throw error;
 
       if (!existing) {
-        console.log("Creating new user...");
-
-        const { error: insertError } = await supabase
-          .from("users")
-          .insert({
-            fid: user.fid,
-            username: user.username,
-            display_name: user.displayName,
-            points: 10,
-            streak: 1,
-            last_checkin: new Date().toISOString(),
-          });
-
-        if (insertError) {
-          console.log("INSERT ERROR:", insertError);
-          throw insertError;
-        }
+        await supabase.from("users").insert({
+          fid: user.fid,
+          username: user.username,
+          display_name: user.displayName,
+          points: 10,
+          streak: 1,
+          last_checkin: new Date().toISOString(),
+        });
 
         alert("✅ First check-in success!");
       } else {
-        console.log("Updating user...");
-
-        const { error: updateError } = await supabase
+        await supabase
           .from("users")
           .update({
             points: existing.points + 10,
@@ -85,16 +64,10 @@ export default function Home() {
           })
           .eq("fid", user.fid);
 
-        if (updateError) {
-          console.log("UPDATE ERROR:", updateError);
-          throw updateError;
-        }
-
         alert("✅ Daily check-in success!");
       }
     } catch (err: any) {
-      console.log("FINAL ERROR:", err);
-      alert("❌ ERROR: " + err.message);
+      alert("❌ Error: " + err.message);
     }
 
     setLoading(false);
@@ -118,7 +91,6 @@ export default function Home() {
           color: "white",
           border: "none",
           borderRadius: "8px",
-          fontSize: "16px",
         }}
       >
         {loading ? "Checking..." : "🔥 Daily Check-In"}
