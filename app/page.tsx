@@ -23,11 +23,7 @@ export default function Home() {
       const username = context?.user?.username;
       const displayName = context?.user?.displayName;
 
-      setUser({
-        fid,
-        username,
-        displayName,
-      });
+      setUser({ fid, username, displayName });
     }
 
     init();
@@ -38,52 +34,46 @@ export default function Home() {
 
     setLoading(true);
 
-    // 👉 check if user exists
-    const { data: existing, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("fid", user.fid);
-
-    if (error) {
-      alert(error.message);
-      setLoading(false);
-      return;
-    }
-
-    if (!existing || existing.length === 0) {
-      // 👉 INSERT
-      const { error: insertError } = await supabase.from("users").insert({
-        fid: user.fid,
-        username: user.username,
-        display_name: user.displayName,
-        points: 10,
-        streak: 1,
-        last_checkin: new Date().toISOString(),
-      });
-
-      if (insertError) {
-        alert(insertError.message);
-      } else {
-        alert("✅ First check-in! +10 points");
-      }
-    } else {
-      // 👉 UPDATE
-      const current = existing[0];
-      const newPoints = (current.points || 0) + 10;
-
-      const { error: updateError } = await supabase
+    try {
+      // 👉 check user
+      const { data: existing, error } = await supabase
         .from("users")
-        .update({
-          points: newPoints,
-          last_checkin: new Date().toISOString(),
-        })
-        .eq("fid", user.fid);
+        .select("*")
+        .eq("fid", user.fid)
+        .maybeSingle();
 
-      if (updateError) {
-        alert(updateError.message);
+      if (error) throw error;
+
+      if (!existing) {
+        // 👉 INSERT
+        const { error: insertError } = await supabase.from("users").insert({
+          fid: user.fid,
+          username: user.username,
+          display_name: user.displayName,
+          points: 10,
+          streak: 1,
+          last_checkin: new Date().toISOString(),
+        });
+
+        if (insertError) throw insertError;
+
+        alert("✅ First check-in! +10");
       } else {
-        alert("✅ Checked in! +10 points");
+        // 👉 UPDATE
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({
+            points: existing.points + 10,
+            last_checkin: new Date().toISOString(),
+          })
+          .eq("fid", user.fid);
+
+        if (updateError) throw updateError;
+
+        alert("✅ Checked in! +10");
       }
+    } catch (err: any) {
+      alert("❌ " + err.message);
     }
 
     setLoading(false);
