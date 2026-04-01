@@ -23,6 +23,8 @@ export default function Home() {
       const username = context?.user?.username;
       const displayName = context?.user?.displayName;
 
+      console.log("USER:", fid, username);
+
       setUser({ fid, username, displayName });
     }
 
@@ -30,32 +32,52 @@ export default function Home() {
   }, []);
 
   async function handleCheckIn() {
-    if (!user) return;
+    if (!user) {
+      alert("User not loaded");
+      return;
+    }
 
     setLoading(true);
 
     try {
+      console.log("Checking user in DB...");
+
       const { data: existing, error } = await supabase
         .from("users")
         .select("*")
         .eq("fid", user.fid)
         .maybeSingle();
 
-      if (error) throw error;
+      console.log("Existing:", existing);
+      if (error) {
+        console.log("ERROR FETCH:", error);
+        throw error;
+      }
 
       if (!existing) {
-        await supabase.from("users").insert({
-          fid: user.fid,
-          username: user.username,
-          display_name: user.displayName,
-          points: 10,
-          streak: 1,
-          last_checkin: new Date().toISOString(),
-        });
+        console.log("Creating new user...");
 
-        alert("✅ First check-in!");
+        const { error: insertError } = await supabase
+          .from("users")
+          .insert({
+            fid: user.fid,
+            username: user.username,
+            display_name: user.displayName,
+            points: 10,
+            streak: 1,
+            last_checkin: new Date().toISOString(),
+          });
+
+        if (insertError) {
+          console.log("INSERT ERROR:", insertError);
+          throw insertError;
+        }
+
+        alert("✅ First check-in success!");
       } else {
-        await supabase
+        console.log("Updating user...");
+
+        const { error: updateError } = await supabase
           .from("users")
           .update({
             points: existing.points + 10,
@@ -63,10 +85,16 @@ export default function Home() {
           })
           .eq("fid", user.fid);
 
-        alert("✅ Checked in!");
+        if (updateError) {
+          console.log("UPDATE ERROR:", updateError);
+          throw updateError;
+        }
+
+        alert("✅ Daily check-in success!");
       }
     } catch (err: any) {
-      alert("❌ " + err.message);
+      console.log("FINAL ERROR:", err);
+      alert("❌ ERROR: " + err.message);
     }
 
     setLoading(false);
@@ -81,7 +109,6 @@ export default function Home() {
       <p>Username: {user.username}</p>
       <p>Display Name: {user.displayName}</p>
 
-      {/* 🔥 FIXED BUTTON */}
       <button
         onClick={handleCheckIn}
         style={{
@@ -92,7 +119,6 @@ export default function Home() {
           border: "none",
           borderRadius: "8px",
           fontSize: "16px",
-          cursor: "pointer",
         }}
       >
         {loading ? "Checking..." : "🔥 Daily Check-In"}
