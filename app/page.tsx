@@ -35,7 +35,6 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // 👉 check user
       const { data: existing, error } = await supabase
         .from("users")
         .select("*")
@@ -45,8 +44,7 @@ export default function Home() {
       if (error) throw error;
 
       if (!existing) {
-        // 👉 INSERT
-        const { error: insertError } = await supabase.from("users").insert({
+        await supabase.from("users").insert({
           fid: user.fid,
           username: user.username,
           display_name: user.displayName,
@@ -55,12 +53,9 @@ export default function Home() {
           last_checkin: new Date().toISOString(),
         });
 
-        if (insertError) throw insertError;
-
-        alert("✅ First check-in! +10");
+        alert("✅ First check-in!");
       } else {
-        // 👉 UPDATE
-        const { error: updateError } = await supabase
+        await supabase
           .from("users")
           .update({
             points: existing.points + 10,
@@ -68,9 +63,7 @@ export default function Home() {
           })
           .eq("fid", user.fid);
 
-        if (updateError) throw updateError;
-
-        alert("✅ Checked in! +10");
+        alert("✅ Checked in!");
       }
     } catch (err: any) {
       alert("❌ " + err.message);
@@ -88,8 +81,21 @@ export default function Home() {
       <p>Username: {user.username}</p>
       <p>Display Name: {user.displayName}</p>
 
-      <button onClick={handleCheckIn} style={{ marginTop: 20 }}>
-        {loading ? "Checking..." : "Daily Check-In"}
+      {/* 🔥 FIXED BUTTON */}
+      <button
+        onClick={handleCheckIn}
+        style={{
+          marginTop: 20,
+          padding: "12px 20px",
+          backgroundColor: "#6366f1",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          fontSize: "16px",
+          cursor: "pointer",
+        }}
+      >
+        {loading ? "Checking..." : "🔥 Daily Check-In"}
       </button>
     </main>
   );
