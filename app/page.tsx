@@ -29,7 +29,12 @@ export default function Home() {
     try {
       const res = await fetch("/api/checkin", {
         method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify(user),
+        cache: "no-store",
+        credentials: "same-origin",
       });
 
       const data = await res.json();
@@ -40,7 +45,7 @@ export default function Home() {
         alert("❌ " + data.error);
       }
     } catch (err) {
-      alert("❌ Network error");
+      alert("❌ Request failed");
     }
 
     setLoading(false);
@@ -62,7 +67,6 @@ export default function Home() {
           padding: "12px 20px",
           backgroundColor: "#6366f1",
           color: "white",
-          border: "none",
           borderRadius: "8px",
         }}
       >

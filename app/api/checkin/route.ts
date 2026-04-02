@@ -2,21 +2,18 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { fid, username, displayName } = body;
+    const { fid, username, displayName } = await req.json();
 
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { data: existing, error } = await supabase
+    const { data: existing } = await supabase
       .from("users")
       .select("*")
       .eq("fid", fid)
       .maybeSingle();
-
-    if (error) throw error;
 
     if (!existing) {
       await supabase.from("users").insert({
@@ -28,10 +25,7 @@ export async function POST(req: Request) {
         last_checkin: new Date().toISOString(),
       });
 
-      return new Response(
-        JSON.stringify({ success: true, message: "First check-in success" }),
-        { headers: { "Content-Type": "application/json" } }
-      );
+      return Response.json({ success: true, message: "First check-in" });
     }
 
     await supabase
@@ -42,14 +36,8 @@ export async function POST(req: Request) {
       })
       .eq("fid", fid);
 
-    return new Response(
-      JSON.stringify({ success: true, message: "Daily check-in success" }),
-      { headers: { "Content-Type": "application/json" } }
-    );
-  } catch (err: any) {
-    return new Response(
-      JSON.stringify({ success: false, error: err.message }),
-      { headers: { "Content-Type": "application/json" } }
-    );
+    return Response.json({ success: true, message: "Checked in" });
+  } catch (e: any) {
+    return Response.json({ success: false, error: e.message });
   }
 }
