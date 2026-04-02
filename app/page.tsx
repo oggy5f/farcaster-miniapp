@@ -1,17 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
 import { sdk } from "@farcaster/frame-sdk";
 
 export default function Home() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(false);
-
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   useEffect(() => {
     async function init() {
@@ -19,7 +13,6 @@ export default function Home() {
 
       const context = await sdk.context;
 
-      // ✅ YAHI DAALNA THA (FIX)
       const fid = context?.user?.fid?.toString();
       const username = context?.user?.username;
       const displayName = context?.user?.displayName;
@@ -31,43 +24,26 @@ export default function Home() {
   }, []);
 
   async function handleCheckIn() {
-    if (!user) return;
-
     setLoading(true);
 
     try {
-      const { data: existing, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("fid", user.fid)
-        .maybeSingle();
+      const res = await fetch("/api/checkin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      });
 
-      if (error) throw error;
+      const data = await res.json();
 
-      if (!existing) {
-        await supabase.from("users").insert({
-          fid: user.fid,
-          username: user.username,
-          display_name: user.displayName,
-          points: 10,
-          streak: 1,
-          last_checkin: new Date().toISOString(),
-        });
-
-        alert("✅ First check-in success!");
+      if (data.error) {
+        alert("❌ " + data.error);
       } else {
-        await supabase
-          .from("users")
-          .update({
-            points: existing.points + 10,
-            last_checkin: new Date().toISOString(),
-          })
-          .eq("fid", user.fid);
-
-        alert("✅ Daily check-in success!");
+        alert("✅ " + data.message);
       }
-    } catch (err: any) {
-      alert("❌ Error: " + err.message);
+    } catch (err) {
+      alert("❌ Network error");
     }
 
     setLoading(false);
