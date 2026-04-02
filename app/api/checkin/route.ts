@@ -1,8 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: Request) {
-  console.log("API HIT"); // ✅ DEBUG
-
   try {
     const body = await req.json();
     const { fid, username, displayName } = body;
@@ -18,13 +16,10 @@ export async function POST(req: Request) {
       .eq("fid", fid)
       .maybeSingle();
 
-    if (error) {
-      console.log("FETCH ERROR:", error);
-      throw error;
-    }
+    if (error) throw error;
 
     if (!existing) {
-      const { error: insertError } = await supabase.from("users").insert({
+      await supabase.from("users").insert({
         fid,
         username,
         display_name: displayName,
@@ -33,30 +28,28 @@ export async function POST(req: Request) {
         last_checkin: new Date().toISOString(),
       });
 
-      if (insertError) {
-        console.log("INSERT ERROR:", insertError);
-        throw insertError;
-      }
-
-      return Response.json({ message: "First check-in success" });
-    } else {
-      const { error: updateError } = await supabase
-        .from("users")
-        .update({
-          points: existing.points + 10,
-          last_checkin: new Date().toISOString(),
-        })
-        .eq("fid", fid);
-
-      if (updateError) {
-        console.log("UPDATE ERROR:", updateError);
-        throw updateError;
-      }
-
-      return Response.json({ message: "Daily check-in success" });
+      return new Response(
+        JSON.stringify({ success: true, message: "First check-in success" }),
+        { headers: { "Content-Type": "application/json" } }
+      );
     }
+
+    await supabase
+      .from("users")
+      .update({
+        points: existing.points + 10,
+        last_checkin: new Date().toISOString(),
+      })
+      .eq("fid", fid);
+
+    return new Response(
+      JSON.stringify({ success: true, message: "Daily check-in success" }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   } catch (err: any) {
-    console.log("FINAL ERROR:", err);
-    return Response.json({ error: err.message });
+    return new Response(
+      JSON.stringify({ success: false, error: err.message }),
+      { headers: { "Content-Type": "application/json" } }
+    );
   }
 }

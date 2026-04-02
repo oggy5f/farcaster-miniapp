@@ -13,42 +13,33 @@ export default function Home() {
 
       const context = await sdk.context;
 
-      const fid = context?.user?.fid?.toString();
-      const username = context?.user?.username;
-      const displayName = context?.user?.displayName;
-
-      setUser({ fid, username, displayName });
+      setUser({
+        fid: context?.user?.fid?.toString(),
+        username: context?.user?.username,
+        displayName: context?.user?.displayName,
+      });
     }
 
     init();
   }, []);
 
   async function handleCheckIn() {
-    console.log("BUTTON CLICK"); // ✅ DEBUG
-
     setLoading(true);
 
     try {
-      const res = await fetch("https://roanmini.xyz/api/checkin", {
-        // ⚠️ IMPORTANT: full URL
+      const res = await fetch("/api/checkin", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(user),
       });
 
       const data = await res.json();
 
-      console.log("API RESPONSE:", data); // ✅ DEBUG
-
-      if (data.error) {
-        alert("❌ " + data.error);
-      } else {
+      if (data.success) {
         alert("✅ " + data.message);
+      } else {
+        alert("❌ " + data.error);
       }
     } catch (err) {
-      console.log("FETCH ERROR:", err); // ✅ DEBUG
       alert("❌ Network error");
     }
 
