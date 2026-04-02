@@ -24,10 +24,13 @@ export default function Home() {
   }, []);
 
   async function handleCheckIn() {
+    console.log("BUTTON CLICK"); // ✅ DEBUG
+
     setLoading(true);
 
     try {
-      const res = await fetch("/api/checkin", {
+      const res = await fetch("https://roanmini.xyz/api/checkin", {
+        // ⚠️ IMPORTANT: full URL
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,12 +40,15 @@ export default function Home() {
 
       const data = await res.json();
 
+      console.log("API RESPONSE:", data); // ✅ DEBUG
+
       if (data.error) {
         alert("❌ " + data.error);
       } else {
         alert("✅ " + data.message);
       }
     } catch (err) {
+      console.log("FETCH ERROR:", err); // ✅ DEBUG
       alert("❌ Network error");
     }
 
